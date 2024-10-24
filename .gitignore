@@ -1,4 +1,4 @@
-*.ioc
+#*.ioc
 *.project
 *.cproject
 *.mxproject
