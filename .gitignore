@@ -1,20 +1,20 @@
 #*.ioc
-*.project
-*.cproject
-*.mxproject
+#*.project
+#*.cproject
+#*.mxproject
 
-/Debug/
-/Release/
-/build/
-/out/
+#/Debug/
+#/Release/
+#/build/
+#/out/
 
-*.o
-*.elf
-*.bin
-*.hex
-*.map
-*.list
-*.srec
+#*.o
+#*.elf
+#*.bin
+#*.hex
+#*.map
+#*.list
+#*.srec
 
-.settings/
+#.settings/
 
