@@ -22,6 +22,9 @@
 #include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
+#include "HTS221.h"
+#include "LPS25HB.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -93,6 +96,8 @@ int main(void)
   MX_I2C1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  HTS221_Init(i2c_master_read);
 
   /* USER CODE END 2 */
 
