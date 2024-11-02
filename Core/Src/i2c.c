@@ -80,8 +80,7 @@ void MX_I2C1_Init(void)
 }
 
 /* USER CODE BEGIN 1 */
-void i2c_master_read(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size)
-{
+void i2c_master_read(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size) {
 	LL_I2C_EnableIT_RX(I2C1);
 
 	LL_I2C_HandleTransfer(I2C1, slave_address, LL_I2C_ADDRSLAVE_7BIT, 1, LL_I2C_MODE_SOFTEND, LL_I2C_GENERATE_START_WRITE);

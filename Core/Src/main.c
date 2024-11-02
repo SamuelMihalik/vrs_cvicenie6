@@ -71,6 +71,10 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+	  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+
+	  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
   /* USER CODE END 1 */
 
@@ -97,7 +101,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  HTS221_Init(i2c_master_read);
+  HTS221_Init(i2c_master_read, i2c_master_write);
 
   /* USER CODE END 2 */
 
