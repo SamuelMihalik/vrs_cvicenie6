@@ -24,6 +24,8 @@
 #include "gpio.h"
 #include "HTS221.h"
 #include "LPS25HB.h"
+#include <stdio.h>
+#include <string.h>
 
 
 /* Private includes ----------------------------------------------------------*/
@@ -49,6 +51,14 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+uint8_t humidity = 0;
+float temperature_h = 0;
+float temperature_l = 0;
+float pressure = 0;
+float height = 0;
+char formated_text[30];
+
+
 
 /* USER CODE END PV */
 
@@ -102,6 +112,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   HTS221_Init(i2c_master_read, i2c_master_write);
+  LPS25HB_Init(i2c_master_read, i2c_master_write);
+
 
   /* USER CODE END 2 */
 
@@ -109,9 +121,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
+    LL_mDelay(100);
+    temperature_h = HTS221_get_temperature();
+    temperature_l = LPS25HB_get_temperature() + 273.15;
+    pressure = LPS25HB_get_pressure();
+	height = LPS25HB_get_height();
+	humidity = HTS221_get_humidity();
 
-    /* USER CODE BEGIN 3 */
+    memset(formated_text, '\0', sizeof(formated_text));
+
+    sprintf(formated_text, "%.1f,%.d,%.2f,%.2f\n", temperature_h, humidity, pressure, height);
+	USART2_PutBuffer((uint8_t*)formated_text, strlen(formated_text));
+
   }
   /* USER CODE END 3 */
 }

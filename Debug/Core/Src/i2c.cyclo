@@ -25,4 +25,3 @@
 ../Core/Src/i2c.c:28:6:MX_I2C1_Init	1
 ../Core/Src/i2c.c:83:6:i2c_master_read	6
 ../Core/Src/i2c.c:107:6:i2c_master_write	6
-../Core/Src/i2c.c:131:6:I2C1_EV_IRQHandler	1

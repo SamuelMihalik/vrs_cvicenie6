@@ -37,5 +37,6 @@ uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
 
 float LPS25HB_get_pressure(void);
 float LPS25HB_get_temperature(void);
+float LPS25HB_get_height(void);
 
 #endif

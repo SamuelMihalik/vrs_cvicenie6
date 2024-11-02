@@ -1,12 +1,8 @@
 #include "LPS25HB.h"
 
-uint8_t address = LPS25HB_DEVICE_ADDRESS_0;
+uint8_t lps25hb_address = LPS25HB_DEVICE_ADDRESS_0;
 
-float initial_pressure;
-
-uint8_t start = 1;
-
-
+static float initial_pressure;
 
 typedef void (*I2C_ReadCallback)(uint8_t slave_address,
                                  uint8_t register_address,
@@ -27,7 +23,7 @@ uint8_t LPS25HB_read_byte(uint8_t register_address) {
 	}
 
 	uint8_t rx_data;
-	I2C_read_data(address, register_address, &rx_data, 1);
+	I2C_read_data(lps25hb_address, register_address, &rx_data, 1);
 	return rx_data;
 }
 
@@ -36,7 +32,7 @@ void LPS25HB_read_array(uint8_t register_address, uint8_t* data, uint8_t size) {
 	        return;
 	}
 
-	I2C_read_data(address, register_address, data, size);
+	I2C_read_data(lps25hb_address, register_address, data, size);
 }
 
 void LPS25HB_write_byte(uint8_t register_address, uint8_t data) {
@@ -44,7 +40,7 @@ void LPS25HB_write_byte(uint8_t register_address, uint8_t data) {
 	        return;
 	}
 
-	I2C_write_data(address, register_address, &data, 1);
+	I2C_write_data(lps25hb_address, register_address, &data, 1);
 }
 
 uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
@@ -60,11 +56,11 @@ uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
 
 	LL_mDelay(100);
 
-	uint8_t address_value = LPS25HB_read_byte(address);
+	uint8_t address_value = LPS25HB_read_byte(lps25hb_address);
 
 	if (address_value != LPS25HB_WHO_AM_I_VALUE) {
-		address = LPS25HB_DEVICE_ADDRESS_1;
-		address_value = LPS25HB_read_byte(address);
+		lps25hb_address = LPS25HB_DEVICE_ADDRESS_1;
+		address_value = LPS25HB_read_byte(lps25hb_address);
 
 		if (address_value != LPS25HB_WHO_AM_I_VALUE) {
 			status = 0;
@@ -121,7 +117,6 @@ float LPS25HB_get_height(void) {
 	float current_pressure = LPS25HB_get_pressure();
 
 	return (float)(44330*(1 - (current_pressure / initial_pressure)));
-
 }
 
 

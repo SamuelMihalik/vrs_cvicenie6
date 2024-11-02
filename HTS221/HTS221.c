@@ -1,8 +1,6 @@
 #include "HTS221.h"
 
-uint8_t address = HTS221_DEVICE_ADDRESS_0;
-
-
+uint8_t hts221_address = HTS221_DEVICE_ADDRESS_0;
 
 typedef void (*I2C_ReadCallback)(uint8_t slave_address,
                                  uint8_t register_address,
@@ -23,7 +21,7 @@ uint8_t HTS221_read_byte(uint8_t register_address) {
 	}
 
 	uint8_t rx_data;
-	I2C_read_data(address, register_address, &rx_data, 1);
+	I2C_read_data(hts221_address, register_address, &rx_data, 1);
 	return rx_data;
 }
 
@@ -32,7 +30,7 @@ void HTS221_read_array(uint8_t register_address, uint8_t* data, uint8_t size) {
 	        return;
 	}
 
-	I2C_read_data(address, register_address, data, size);
+	I2C_read_data(hts221_address, register_address, data, size);
 }
 
 void HTS221_write_byte(uint8_t register_address, uint8_t data) {
@@ -40,7 +38,7 @@ void HTS221_write_byte(uint8_t register_address, uint8_t data) {
 	        return;
 	}
 
-	I2C_write_data(address, register_address, &data, 1);
+	I2C_write_data(hts221_address, register_address, &data, 1);
 }
 
 uint8_t HTS221_Init(I2C_ReadCallback read_callback,
@@ -57,7 +55,7 @@ uint8_t HTS221_Init(I2C_ReadCallback read_callback,
 
 	LL_mDelay(100);
 
-	uint8_t address_value = HTS221_read_byte(HTS221_DEVICE_ADDRESS_0);
+	uint8_t address_value = HTS221_read_byte(hts221_address);
 
 	if (address_value != HTS221_WHO_AM_I_VALUE) {
 		status = 0;
@@ -108,7 +106,7 @@ int8_t HTS221_get_humidity(void) {
 	return (int8_t)(k * humidity_raw + q);
 }
 
-int8_t HTS221_get_temeperature(void) {
+int8_t HTS221_get_temperature(void) {
 
 	if (I2C_read_data == NULL) {
 	        return -1;
@@ -122,12 +120,12 @@ int8_t HTS221_get_temeperature(void) {
 							   temperature_data[0]);
 
 	uint8_t x0[2], x1[2], y[2];
-	uint8_t t0_t1_msb;
+
 
 	HTS221_read_array(HTS221_ADDRESS_T0_OUT_L, x0, 2);
 	HTS221_read_array(HTS221_ADDRESS_T1_OUT_L, x1, 2);
 	HTS221_read_array(HTS221_ADDRESS_T0_degC_x8, y, 2);
-	HTS221_read_byte(HTS221_ADDRESS_T1_T2_msb, &t0_t1_msb, 1);
+	uint8_t t0_t1_msb = HTS221_read_byte(HTS221_ADDRESS_T1_T2_msb);
 
 	int16_t calibration_x0 = (int16_t)(x0[1] << 8 |
 									   x0[0]);
@@ -145,9 +143,9 @@ int8_t HTS221_get_temeperature(void) {
 
 
 
-	float k = (float)((y[1] - y[0])/(calibration_x1 - calibration_x0));
+	float k = (float)((calibration_y1 - calibration_y0)/(calibration_x1 - calibration_x0));
 
-	float q = (float)(y[1] - k*calibration_x1);
+	float q = (float)(calibration_y1 - k*calibration_x1);
 
 	return (int8_t)(k * temperature_raw + q);
 }

@@ -127,7 +127,7 @@ void i2c_master_write(uint8_t slave_address, uint8_t register_address, uint8_t* 
 }
 
 
-
+/*
 void I2C1_EV_IRQHandler(void)
 {
 	if(LL_I2C_IsActiveFlag_RXNE(I2C1))
