@@ -2,6 +2,12 @@
 
 uint8_t address = LPS25HB_DEVICE_ADDRESS_0;
 
+float initial_pressure;
+
+uint8_t start = 1;
+
+
+
 typedef void (*I2C_ReadCallback)(uint8_t slave_address,
                                  uint8_t register_address,
                                  uint8_t* data,
@@ -72,6 +78,8 @@ uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
 
 	LPS25HB_write_byte(LPS25HB_ADDRESS_CTRL1, ctrl1);
 
+	initial_pressure = LPS25HB_get_pressure();
+
 	return status;
 }
 
@@ -89,7 +97,7 @@ float LPS25HB_get_pressure(void) {
 									 pressure_data[1] << 8 |
 									 pressure_data[0]);
 
-	return (float)pressure_raw / 4096.0f;
+	return (float)(pressure_raw / 4096.0f);
 }
 
 float LPS25HB_get_temperature(void) {
@@ -105,7 +113,16 @@ float LPS25HB_get_temperature(void) {
 	int16_t temperature_raw = (int16_t)(temperature_data[1] << 8 |
 							   	   	    temperature_data[0]);
 
-	return (float)temperature_raw / 100.0f;
+	return (float)(temperature_raw / 100.0f);
 }
+
+float LPS25HB_get_height(void) {
+
+	float current_pressure = LPS25HB_get_pressure();
+
+	return (float)(44330*(1 - (current_pressure / initial_pressure)));
+
+}
+
 
 
