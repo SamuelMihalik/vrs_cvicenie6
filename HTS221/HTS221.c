@@ -7,29 +7,49 @@
 
 #include "HTS221.h"
 
-static void (* I2C_read_data)(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size) = 0;
-static void (* I2C_write_data)(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size) = 0;
+uint8_t address = HTS221_DEVICE_ADDRESS_0;
+
+typedef void (*I2C_ReadCallback)(uint8_t slave_address,
+                                 uint8_t register_address,
+                                 uint8_t* data,
+                                 uint8_t size);
+
+typedef void (*I2C_WriteCallback)(uint8_t slave_address,
+                                  uint8_t register_address,
+                                  uint8_t* data,
+                                  uint8_t size);
+
+static I2C_ReadCallback I2C_read_data = NULL;
+static I2C_WriteCallback I2C_write_data = NULL;
 
 uint8_t HTS221_read_byte(uint8_t register_address) {
-		uint8_t rx_data;
-	    I2C_read_data(HTS221_DEVICE_ADDRESS_0, register_address, &rx_data, 1);
-	    return rx_data;
+	if (I2C_read_data == NULL) {
+		return 0;
+	}
+
+	uint8_t rx_data;
+	I2C_read_data(address, register_address, &rx_data, 1);
+	return rx_data;
 }
 
 void HTS221_read_array(uint8_t register_address, uint8_t* data, uint8_t size) {
-		for(uint8_t i=0; i<size; i++){
-			I2C_read_data(HTS221_DEVICE_ADDRESS_0, register_address+i, data+i, 1);
-		}
+	if (I2C_read_data == NULL || data == NULL || size == 0) {
+	        return;
+	}
+
+	I2C_read_data(address, register_address, data, size);
 }
 
-void HTS221_write_byte(uint8_t register_address, uint8_t data)
-{
-	I2C_write_data(HTS221_DEVICE_ADDRESS_0, register_address, data, 1);
+void HTS221_write_byte(uint8_t register_address, uint8_t data) {
+	if (I2C_write_data == NULL) {
+	        return;
+	}
+
+	I2C_write_data(address, register_address, &data, 1);
 }
 
-uint8_t HTS221_Init(void (*read_callback)(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size),
-					void (*write_callback)(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size)) {
-
+uint8_t HTS221_Init(I2C_ReadCallback read_callback,
+					 I2C_WriteCallback write_callback) {
 
 	if(read_callback != 0)
 		I2C_read_data = read_callback;

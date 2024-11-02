@@ -1,10 +1,3 @@
-/*
- * HTS221.h
- *
- *  Created on: Oct 28, 2024
- *      Author: mihal
- */
-
 #ifndef HTS221_H_
 #define HTS221_H_
 
@@ -20,25 +13,35 @@
 #define HTS221_ADDRESS_HUMIDITY_L			0x28
 #define HTS221_ADDRESS_HUMIDITY_H			0x29
 
-uint8_t HTS221_Init();
+#define HTS221_ADDRESS_H0_rH_x2				0x30
+#define HTS221_ADDRESS_H1_rH_x2				0x31
+
+#define HTS221_ADDRESS_H0_T0_OUT_L			0x36
+#define HTS221_ADDRESS_H0_T0_OUT_H			0x37
+
+#define HTS221_ADDRESS_H1_T0_OUT_L			0x3A
+#define HTS221_ADDRESS_H1_T0_OUT_H			0x3B
 
 
-uint8_t HTS221_read(uint8_t register_address);
-void HTS221_write_byte(uint8_t register_address, uint8_t value);
-void HTS221_read_callback(void *callback);
+
+
+
+
+typedef void (*I2C_ReadCallback)(uint8_t slave_address,
+                                 uint8_t register_address,
+                                 uint8_t* data,
+                                 uint8_t size);
+
+typedef void (*I2C_WriteCallback)(uint8_t slave_address,
+                                  uint8_t register_address,
+                                  uint8_t* data,
+                                  uint8_t size);
 
 uint8_t HTS221_read_byte(uint8_t register_address);
 void HTS221_read_array(uint8_t register_address, uint8_t* data, uint8_t size);
 void HTS221_write_byte(uint8_t register_address, uint8_t data);
 
-uint8_t HTS221_Init(void (*read_callback)(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size),
-					void (*write_callback)(uint8_t slave_address, uint8_t register_address, uint8_t* data, uint8_t size));
+uint8_t HTS221_Init(I2C_ReadCallback read_callback,
+					I2C_WriteCallback write_callback);
 
-
-
-
-
-
-
-
-#endif /* HTS221_H_ */
+#endif
