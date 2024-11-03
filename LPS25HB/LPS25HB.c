@@ -56,13 +56,13 @@ uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
 
 	LL_mDelay(100);
 
-	uint8_t address_value = LPS25HB_read_byte(lps25hb_address);
+	uint8_t who_am_i = LPS25HB_read_byte(LPS25HB_WHO_AM_I_ADDRESS);
 
-	if (address_value != LPS25HB_WHO_AM_I_VALUE) {
+	if (who_am_i != LPS25HB_WHO_AM_I_VALUE) {
 		lps25hb_address = LPS25HB_DEVICE_ADDRESS_1;
-		address_value = LPS25HB_read_byte(lps25hb_address);
+		who_am_i = LPS25HB_read_byte(LPS25HB_WHO_AM_I_ADDRESS);
 
-		if (address_value != LPS25HB_WHO_AM_I_VALUE) {
+		if (who_am_i != LPS25HB_WHO_AM_I_VALUE) {
 			status = 0;
 			return status;
 		}
@@ -109,7 +109,7 @@ float LPS25HB_get_temperature(void) {
 	int16_t temperature_raw = (int16_t)(temperature_data[1] << 8 |
 							   	   	    temperature_data[0]);
 
-	return (float)(temperature_raw / 100.0f);
+	return 42.5f + ((float)temperature_raw / 480.0f);
 }
 
 float LPS25HB_get_height(void) {

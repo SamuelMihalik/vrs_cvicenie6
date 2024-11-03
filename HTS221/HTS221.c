@@ -1,6 +1,14 @@
 #include "HTS221.h"
 
-uint8_t hts221_address = HTS221_DEVICE_ADDRESS_0;
+typedef struct {
+    float k;
+    float q;
+} HTS221_Calibration_t;
+
+static HTS221_Calibration_t humidity_calibration = {0};
+static HTS221_Calibration_t temperature_calibration = {0};
+
+static uint8_t hts221_address = HTS221_DEVICE_ADDRESS_0;
 
 typedef void (*I2C_ReadCallback)(uint8_t slave_address,
                                  uint8_t register_address,
@@ -41,25 +49,19 @@ void HTS221_write_byte(uint8_t register_address, uint8_t data) {
 	I2C_write_data(hts221_address, register_address, &data, 1);
 }
 
-uint8_t HTS221_Init(I2C_ReadCallback read_callback,
-					 I2C_WriteCallback write_callback) {
+uint8_t HTS221_Init(I2C_ReadCallback read_callback, I2C_WriteCallback write_callback) {
+	if(read_callback == NULL || write_callback == NULL) {
+		return 0;
+	}
 
-	if(read_callback != 0)
-		I2C_read_data = read_callback;
-
-	if(write_callback != 0)
-		I2C_write_data = write_callback;
-
-
-	uint8_t status = 1;
+	I2C_read_data = read_callback;
+	I2C_write_data = write_callback;
 
 	LL_mDelay(100);
 
-	uint8_t address_value = HTS221_read_byte(hts221_address);
-
-	if (address_value != HTS221_WHO_AM_I_VALUE) {
-		status = 0;
-		return status;
+	uint8_t who_am_i = HTS221_read_byte(HTS221_WHO_AM_I_ADDRESS);
+	if (who_am_i != HTS221_WHO_AM_I_VALUE) {
+		return 0;
 	}
 
 	uint8_t ctrl1 = HTS221_read_byte(HTS221_ADDRESS_CTRL1);
@@ -68,42 +70,44 @@ uint8_t HTS221_Init(I2C_ReadCallback read_callback,
 
 	HTS221_write_byte(HTS221_ADDRESS_CTRL1, ctrl1);
 
-	return status;
+
+
+	return 1;
 }
+
 
 int8_t HTS221_get_humidity(void) {
 
-	if (I2C_read_data == NULL) {
-	        return -1;
-	}
+    if (I2C_read_data == NULL) {
+        return -1;
+    }
 
-	uint8_t humidity_data[2];
+    uint8_t humidity_data[2];
 
-	HTS221_read_array(HTS221_ADDRESS_HUMIDITY_OUT_L, humidity_data, 2);
+    // Načítanie surových dát vlhkosti
+    HTS221_read_array(HTS221_ADDRESS_HUMIDITY_OUT_L, humidity_data, 2);
+    int16_t humidity_raw = (humidity_data[1] << 8) | humidity_data[0];
 
-	int16_t humidity_raw = (humidity_data[1] << 8 |
-							humidity_data[0]);
+    uint8_t h0_rh_x2, h1_rh_x2;
+    uint8_t h0_t0_out[2], h1_t0_out[2];
 
-	uint8_t x0[2], x1[2], y[2];
+    // Načítanie kalibračných koeficientov z pamäte
+    HTS221_read_array(HTS221_ADDRESS_H0_rH_x2, &h0_rh_x2, 1);
+    HTS221_read_array(HTS221_ADDRESS_H1_rH_x2, &h1_rh_x2, 1);
+    HTS221_read_array(HTS221_ADDRESS_H0_T0_OUT_L, h0_t0_out, 2);
+    HTS221_read_array(HTS221_ADDRESS_H1_T0_OUT_L, h1_t0_out, 2);
 
-	HTS221_read_array(HTS221_ADDRESS_H0_T0_OUT_L, x0, 2);
-	HTS221_read_array(HTS221_ADDRESS_H1_T0_OUT_L, x1, 2);
-	HTS221_read_array(HTS221_ADDRESS_H0_rH_x2, y, 2);
+    // Výpočet kalibračných bodov
+    int8_t h0_rh = h0_rh_x2 / 2;
+    int8_t h1_rh = h1_rh_x2 / 2;
+    int16_t h0_t0_out = (h0_t0_out[1] << 8) | h0_t0_out[0];
+    int16_t h1_t0_out = (h1_t0_out[1] << 8) | h1_t0_out[0];
 
-	int16_t calibration_x0 = (int16_t)(x0[1] << 8 |
-									   x0[0]);
-	int16_t calibration_x1 = (int16_t)(x1[1] << 8 |
-									   x1[0]);
+    // Výpočet vlhkosti pomocou lineárnej interpolácie
+    float humidity = ((float)(h1_rh - h0_rh) * (humidity_raw - h0_t0_out) / (h1_t0_out - h0_t0_out)) + h0_rh;
 
-	int8_t calibration_y0 = y[0] / 2;
-	int8_t calibration_y1 = y[1] / 2;
-
-
-	float k = (float)((calibration_y1 - calibration_y0)/(calibration_x1 - calibration_x0));
-
-	float q = (float)(calibration_y1 - k*calibration_x1);
-
-	return (int8_t)(k * humidity_raw + q);
+    // Zaistenie návratovej hodnoty ako celého čísla v percentách
+    return (int8_t)humidity;
 }
 
 int8_t HTS221_get_temperature(void) {

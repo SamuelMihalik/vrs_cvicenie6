@@ -58,6 +58,13 @@ float pressure = 0;
 float height = 0;
 char formated_text[30];
 
+typedef struct {
+    float temperature;
+    uint8_t humidity;
+    float pressure;
+    float height;
+} sensor_data;
+
 
 
 /* USER CODE END PV */
@@ -122,16 +129,18 @@ int main(void)
   while (1)
   {
     LL_mDelay(100);
+
     temperature_h = HTS221_get_temperature();
-    temperature_l = LPS25HB_get_temperature() + 273.15;
+    temperature_l = LPS25HB_get_temperature();
     pressure = LPS25HB_get_pressure();
-	height = LPS25HB_get_height();
-	humidity = HTS221_get_humidity();
+    height = LPS25HB_get_height();
+    humidity = HTS221_get_humidity();
 
     memset(formated_text, '\0', sizeof(formated_text));
 
-    sprintf(formated_text, "%.1f,%.d,%.2f,%.2f\n", temperature_h, humidity, pressure, height);
-	USART2_PutBuffer((uint8_t*)formated_text, strlen(formated_text));
+    sprintf(formated_text, "%.1f,%.d,%.2f,%.2f\n\r", temperature_l, humidity, pressure, height);
+    USART2_PutBuffer((uint8_t*)formated_text, strlen(formated_text));
+
 
   }
   /* USER CODE END 3 */
