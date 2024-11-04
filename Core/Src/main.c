@@ -1,155 +1,53 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "dma.h"
-#include "i2c.h"
-#include "usart.h"
-#include "gpio.h"
-#include "HTS221.h"
-#include "LPS25HB.h"
-#include <stdio.h>
-#include <string.h>
 
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
-uint8_t humidity = 0;
-float temperature_h = 0;
-float temperature_l = 0;
-float pressure = 0;
-float height = 0;
 char formated_text[30];
 
 typedef struct {
-    float temperature;
+    float temperature_h;
+    float temperature_l;
     uint8_t humidity;
     float pressure;
     float height;
 } sensor_data;
 
+sensor_data data;
+float initial_pressure;
 
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
-
-  /* USER CODE BEGIN 1 */
+int main(void) {
 	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
-	  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
-	  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
-  /* USER CODE END 1 */
+	HAL_Init();
 
-  /* MCU Configuration--------------------------------------------------------*/
+	SystemClock_Config();
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	MX_GPIO_Init();
+	MX_DMA_Init();
+	MX_I2C1_Init();
+	MX_USART2_UART_Init();
 
-  /* USER CODE BEGIN Init */
+	HTS221_Init(i2c_master_read, i2c_master_write);
+	LPS25HB_Init(i2c_master_read, i2c_master_write);
 
-  /* USER CODE END Init */
+	initial_pressure = LPS25HB_get_pressure();
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	while (1) {
+		LL_mDelay(100);
 
-  /* USER CODE BEGIN SysInit */
+		get_sensor_data();
 
-  /* USER CODE END SysInit */
+		memset(formated_text, '\0', sizeof(formated_text));
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_I2C1_Init();
-  MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
+		sprintf(formated_text, "%.1f,%.1f,%.d,%.2f,%.2f\n\r", data.temperature_l, data.temperature_h, data.humidity, data.pressure, data.height);
+		USART2_PutBuffer((uint8_t*)formated_text, strlen(formated_text));
+	}
 
-  HTS221_Init(i2c_master_read, i2c_master_write);
-  LPS25HB_Init(i2c_master_read, i2c_master_write);
-
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    LL_mDelay(100);
-
-    temperature_h = HTS221_get_temperature();
-    temperature_l = LPS25HB_get_temperature();
-    pressure = LPS25HB_get_pressure();
-    height = LPS25HB_get_height();
-    humidity = HTS221_get_humidity();
-
-    memset(formated_text, '\0', sizeof(formated_text));
-
-    sprintf(formated_text, "%.1f,%.d,%.2f,%.2f\n\r", temperature_l, humidity, pressure, height);
-    USART2_PutBuffer((uint8_t*)formated_text, strlen(formated_text));
-
-
-  }
-  /* USER CODE END 3 */
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
 void SystemClock_Config(void)
 {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
@@ -182,6 +80,14 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   LL_RCC_SetI2CClockSource(LL_RCC_I2C1_CLKSOURCE_HSI);
+}
+
+void get_sensor_data(void) {
+	data.temperature_h = HTS221_get_temperature();
+	data.temperature_l = LPS25HB_get_temperature();
+	data.pressure = LPS25HB_get_pressure();
+	data.height = (float)44330.00 * (1 - pow(data.pressure / initial_pressure, 1 / 5.255));
+	data.humidity = HTS221_get_humidity();
 }
 
 /* USER CODE BEGIN 4 */

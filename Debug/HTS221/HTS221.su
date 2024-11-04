@@ -1,0 +1,6 @@
+../HTS221/HTS221.c:26:9:HTS221_read_byte	32	static
+../HTS221/HTS221.c:36:6:HTS221_read_array	24	static
+../HTS221/HTS221.c:44:6:HTS221_write_byte	24	static
+../HTS221/HTS221.c:52:9:HTS221_Init	24	static
+../HTS221/HTS221.c:79:8:HTS221_get_humidity	32	static
+../HTS221/HTS221.c:107:7:HTS221_get_temperature	48	static

@@ -2,8 +2,6 @@
 
 uint8_t lps25hb_address = LPS25HB_DEVICE_ADDRESS_0;
 
-static float initial_pressure;
-
 typedef void (*I2C_ReadCallback)(uint8_t slave_address,
                                  uint8_t register_address,
                                  uint8_t* data,
@@ -112,12 +110,7 @@ float LPS25HB_get_temperature(void) {
 	return 42.5f + ((float)temperature_raw / 480.0f);
 }
 
-float LPS25HB_get_height(void) {
 
-	float current_pressure = LPS25HB_get_pressure();
-
-	return (float)(44330*(1 - (current_pressure / initial_pressure)));
-}
 
 
 

@@ -54,6 +54,6 @@ uint8_t HTS221_Init(I2C_ReadCallback read_callback,
 					I2C_WriteCallback write_callback);
 
 int8_t HTS221_get_humidity(void);
-int8_t HTS221_get_temperature(void);
+float HTS221_get_temperature(void);
 
 #endif

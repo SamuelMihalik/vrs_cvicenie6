@@ -35,6 +35,11 @@ Core/Src/stm32f3xx_it.o: ../Core/Src/stm32f3xx_it.c ../Core/Inc/main.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_dma.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_usart.h \
  ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h \
+ ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/i2c.h \
+ ../Core/Inc/usart.h ../Core/Inc/gpio.h \
+ C:/Users/mihal/STM32CubeIDE/workspace_1.16.1/vrs_cvicenie_6/HTS221/HTS221.h \
+ ../Core/Inc/i2c.h \
+ C:/Users/mihal/STM32CubeIDE/workspace_1.16.1/vrs_cvicenie_6/LPS25HB/LPS25HB.h \
  ../Core/Inc/stm32f3xx_it.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal.h:
@@ -73,4 +78,12 @@ Core/Src/stm32f3xx_it.o: ../Core/Src/stm32f3xx_it.c ../Core/Inc/main.h \
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_dma.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_usart.h:
 ../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_ll_gpio.h:
+../Core/Inc/dma.h:
+../Core/Inc/main.h:
+../Core/Inc/i2c.h:
+../Core/Inc/usart.h:
+../Core/Inc/gpio.h:
+C:/Users/mihal/STM32CubeIDE/workspace_1.16.1/vrs_cvicenie_6/HTS221/HTS221.h:
+../Core/Inc/i2c.h:
+C:/Users/mihal/STM32CubeIDE/workspace_1.16.1/vrs_cvicenie_6/LPS25HB/LPS25HB.h:
 ../Core/Inc/stm32f3xx_it.h:

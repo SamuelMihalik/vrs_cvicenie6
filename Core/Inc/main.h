@@ -41,6 +41,16 @@ extern "C" {
 #include "stm32f3xx_ll_usart.h"
 #include "stm32f3xx_ll_gpio.h"
 
+#include "dma.h"
+#include "i2c.h"
+#include "usart.h"
+#include "gpio.h"
+#include "HTS221.h"
+#include "LPS25HB.h"
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -63,6 +73,8 @@ extern "C" {
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+
+void get_sensor_data(void);
 
 
 
