@@ -41,16 +41,13 @@ void LPS25HB_write_byte(uint8_t register_address, uint8_t data) {
 	I2C_write_data(lps25hb_address, register_address, &data, 1);
 }
 
-uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
-					 I2C_WriteCallback write_callback) {
+uint8_t LPS25HB_Init(I2C_ReadCallback read_callback, I2C_WriteCallback write_callback) {
+	if(read_callback == NULL || write_callback == NULL) {
+		return 0;
+	}
 
-	if(read_callback != NULL)
-		I2C_read_data = read_callback;
-
-	if(write_callback != NULL)
-		I2C_write_data = write_callback;
-
-	uint8_t status = 1;
+	I2C_read_data = read_callback;
+	I2C_write_data = write_callback;
 
 	LL_mDelay(100);
 
@@ -61,8 +58,7 @@ uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
 		who_am_i = LPS25HB_read_byte(LPS25HB_WHO_AM_I_ADDRESS);
 
 		if (who_am_i != LPS25HB_WHO_AM_I_VALUE) {
-			status = 0;
-			return status;
+			return 0;
 		}
 	}
 
@@ -72,9 +68,7 @@ uint8_t LPS25HB_Init(I2C_ReadCallback read_callback,
 
 	LPS25HB_write_byte(LPS25HB_ADDRESS_CTRL1, ctrl1);
 
-	initial_pressure = LPS25HB_get_pressure();
-
-	return status;
+	return 1;
 }
 
 float LPS25HB_get_pressure(void) {

@@ -30,8 +30,13 @@ int main(void) {
 	MX_I2C1_Init();
 	MX_USART2_UART_Init();
 
-	HTS221_Init(i2c_master_read, i2c_master_write);
-	LPS25HB_Init(i2c_master_read, i2c_master_write);
+	if(!HTS221_Init(i2c_master_read, i2c_master_write))
+		return;
+
+
+
+	if(!LPS25HB_Init(i2c_master_read, i2c_master_write))
+		return;
 
 	initial_pressure = LPS25HB_get_pressure();
 
@@ -86,7 +91,7 @@ void get_sensor_data(void) {
 	data.temperature_h = HTS221_get_temperature();
 	data.temperature_l = LPS25HB_get_temperature();
 	data.pressure = LPS25HB_get_pressure();
-	data.height = (float)44330.00 * (1 - pow(data.pressure / initial_pressure, 1 / 5.255));
+	data.height = (float)44330.00 * (1 - pow(data.pressure / initial_pressure, 1 / 5.255)); //15, 10, klesa tlak
 	data.humidity = HTS221_get_humidity();
 }
 

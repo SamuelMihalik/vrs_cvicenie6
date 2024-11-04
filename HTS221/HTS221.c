@@ -62,8 +62,6 @@ uint8_t HTS221_Init(I2C_ReadCallback read_callback, I2C_WriteCallback write_call
 
 	HTS221_write_byte(HTS221_ADDRESS_CTRL1, ctrl1);
 
-
-
 	return 1;
 }
 
